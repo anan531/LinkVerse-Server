@@ -1,16 +1,25 @@
 const dns = require("dns");
 dns.setServers(["8.8.8.8", "8.8.4.4"]);
 
-
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 require("dotenv").config();
 
+const authRoutes = require("./routes/authRoutes");
+const profileRoutes = require("./routes/profileRoutes");
+const studentRoutes = require("./routes/studentRoutes");
+const connectionRoutes = require("./routes/connectionRoutes");
+
 const app = express();
 
 app.use(cors());
 app.use(express.json());
+
+app.use("/api/auth", authRoutes);
+app.use("/api/profile", profileRoutes);
+app.use("/api/students", studentRoutes);
+app.use("/api/connections", connectionRoutes);
 
 app.get("/", (req, res) => {
     res.send("LinkVerse Backend is Running!");
