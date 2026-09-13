@@ -57,7 +57,53 @@ router.post("/:userId", authMiddleware, async (req, res) => {
     });
   }
 });
+// Get pending connection requests
+router.get("/requests", authMiddleware, async (req, res) => {
+  try {
+    const userId = req.user.userId;
 
+    const requests = await Connection.find({
+      receiver: userId,
+      status: "pending",
+    }).populate("sender", "name email");
+
+    res.status(200).json({
+      requests,
+    });
+  } catch (error) {
+    console.error("Get requests error:", error);
+
+    res.status(500).json({
+      message: "Server error while fetching connection requests",
+    });
+  }
+});
+
+// Get accepted connections
+router.get("/", authMiddleware, async (req, res) => {
+  try {
+    const userId = req.user.userId;
+
+    const connections = await Connection.find({
+      $or: [
+        { sender: userId, status: "accepted" },
+        { receiver: userId, status: "accepted" },
+      ],
+    })
+      .populate("sender", "name email")
+      .populate("receiver", "name email");
+
+    res.status(200).json({
+      connections,
+    });
+  } catch (error) {
+    console.error("Get connections error:", error);
+
+    res.status(500).json({
+      message: "Server error while fetching connections",
+    });
+  }
+});
 
 // Accept connection request
 router.put("/:connectionId/accept", authMiddleware, async (req, res) => {
