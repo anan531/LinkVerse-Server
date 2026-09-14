@@ -28,6 +28,29 @@ router.get("/me", authMiddleware, async (req, res) => {
   }
 });
 
+// Get another student's public profile
+router.get("/:userId", authMiddleware, async (req, res) => {
+  try {
+    const user = await User.findById(req.params.userId).select("-password");
+
+    if (!user) {
+      return res.status(404).json({
+        message: "Student not found",
+      });
+    }
+
+    res.status(200).json({
+      message: "Student profile fetched successfully",
+      user,
+    });
+  } catch (error) {
+    console.error("Student profile error:", error);
+
+    res.status(500).json({
+      message: "Server error while fetching student profile",
+    });
+  }
+});
 
 // Update logged-in user's profile
 router.put("/me", authMiddleware, async (req, res) => {

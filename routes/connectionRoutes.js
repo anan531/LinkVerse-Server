@@ -27,17 +27,25 @@ router.post("/:userId", authMiddleware, async (req, res) => {
       });
     }
 
-    // Check existing connection
-    const existingConnection = await Connection.findOne({
+// Check if a connection already exists in either direction
+const existingConnection = await Connection.findOne({
+  $or: [
+    {
       sender: senderId,
       receiver: receiverId,
-    });
+    },
+    {
+      sender: receiverId,
+      receiver: senderId,
+    },
+  ],
+});
 
-    if (existingConnection) {
-      return res.status(400).json({
-        message: "Connection request already exists",
-      });
-    }
+if (existingConnection) {
+  return res.status(400).json({
+    message: "Connection already exists or request is already sent",
+  });
+}
 
     // Create connection request
     const connection = await Connection.create({
