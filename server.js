@@ -10,6 +10,9 @@ const authRoutes = require("./routes/authRoutes");
 const profileRoutes = require("./routes/profileRoutes");
 const studentRoutes = require("./routes/studentRoutes");
 const connectionRoutes = require("./routes/connectionRoutes");
+const opportunityRoutes = require("./routes/opportunityroutes");
+const collaborationRoutes = require("./routes/collaborationRoutes");
+const collaborationRequestRoutes = require("./routes/collaborationRequestRoutes");
 
 const app = express();
 
@@ -20,6 +23,10 @@ app.use("/api/auth", authRoutes);
 app.use("/api/profile", profileRoutes);
 app.use("/api/students", studentRoutes);
 app.use("/api/connections", connectionRoutes);
+app.use("/api/opportunities", opportunityRoutes);
+app.use("/api/collaborations", collaborationRoutes);
+app.use("/api/collaboration-requests", collaborationRequestRoutes);
+
 
 app.get("/", (req, res) => {
     res.send("LinkVerse Backend is Running!");
