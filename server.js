@@ -13,6 +13,7 @@ const connectionRoutes = require("./routes/connectionRoutes");
 const opportunityRoutes = require("./routes/opportunityroutes");
 const collaborationRoutes = require("./routes/collaborationRoutes");
 const collaborationRequestRoutes = require("./routes/collaborationRequestRoutes");
+const chatRoutes = require("./routes/chatRoutes");
 
 const app = express();
 
@@ -26,6 +27,7 @@ app.use("/api/connections", connectionRoutes);
 app.use("/api/opportunities", opportunityRoutes);
 app.use("/api/collaborations", collaborationRoutes);
 app.use("/api/collaboration-requests", collaborationRequestRoutes);
+app.use("/api/chat", chatRoutes);
 
 
 app.get("/", (req, res) => {

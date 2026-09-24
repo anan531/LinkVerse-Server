@@ -4,11 +4,11 @@ const authMiddleware = require("../middleware/authMiddleware");
 
 const router = express.Router();
 
-// Get all collaboration posts
 router.get("/", authMiddleware, async (req, res) => {
     try {
         const collaborations = await Collaboration.find()
-            .populate("createdBy", "name email");
+            .populate("createdBy", "name email")
+            .populate("members", "name email");
 
         res.json(collaborations);
     } catch (error) {
