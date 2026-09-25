@@ -60,4 +60,36 @@ router.post("/", authMiddleware, async (req, res) => {
     }
 });
 
+// Delete an opportunity - Admin only
+router.delete("/:opportunityId", authMiddleware, async (req, res) => {
+    if (req.user.role !== "admin") {
+        return res.status(403).json({
+            message: "Only admins can delete opportunities"
+        });
+    }
+
+    try {
+        const opportunity = await Opportunity.findByIdAndDelete(
+            req.params.opportunityId
+        );
+
+        if (!opportunity) {
+            return res.status(404).json({
+                message: "Opportunity not found"
+            });
+        }
+
+        res.json({
+            message: "Opportunity deleted successfully"
+        });
+
+    } catch (error) {
+        console.error(error);
+
+        res.status(500).json({
+            message: "Error deleting opportunity"
+        });
+    }
+});
+
 module.exports = router;

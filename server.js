@@ -14,6 +14,10 @@ const opportunityRoutes = require("./routes/opportunityroutes");
 const collaborationRoutes = require("./routes/collaborationRoutes");
 const collaborationRequestRoutes = require("./routes/collaborationRequestRoutes");
 const chatRoutes = require("./routes/chatRoutes");
+const postRoutes = require("./routes/postRoutes");
+const commentRoutes = require("./routes/commentRoutes");
+const adminRoutes = require("./routes/adminRoutes");
+const adminStudentRoutes = require("./routes/adminStudentRoutes");
 
 const app = express();
 
@@ -28,6 +32,10 @@ app.use("/api/opportunities", opportunityRoutes);
 app.use("/api/collaborations", collaborationRoutes);
 app.use("/api/collaboration-requests", collaborationRequestRoutes);
 app.use("/api/chat", chatRoutes);
+app.use("/api/posts", postRoutes);
+app.use("/api/comments", commentRoutes);
+app.use("/api/admin", adminRoutes);
+app.use("/api/admin/students", adminStudentRoutes);
 
 
 app.get("/", (req, res) => {
