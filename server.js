@@ -18,6 +18,8 @@ const postRoutes = require("./routes/postRoutes");
 const commentRoutes = require("./routes/commentRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 const adminStudentRoutes = require("./routes/adminStudentRoutes");
+const recommendationRoutes = require("./routes/recommendationRoutes");
+
 
 const app = express();
 
@@ -36,6 +38,8 @@ app.use("/api/posts", postRoutes);
 app.use("/api/comments", commentRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/admin/students", adminStudentRoutes);
+app.use("/api/recommendations", recommendationRoutes);
+
 
 
 app.get("/", (req, res) => {
