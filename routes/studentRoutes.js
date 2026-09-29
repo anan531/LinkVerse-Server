@@ -25,4 +25,31 @@ router.get("/", authMiddleware, async (req, res) => {
   }
 });
 
+// Get a single student's profile
+router.get("/:userId", authMiddleware, async (req, res) => {
+  try {
+    const student = await User.findOne({
+      _id: req.params.userId,
+      role: "student",
+    }).select("-password");
+
+    if (!student) {
+      return res.status(404).json({
+        message: "Student not found",
+      });
+    }
+
+    res.status(200).json({
+      message: "Student profile fetched successfully",
+      user: student,
+    });
+  } catch (error) {
+    console.error("Student profile error:", error);
+
+    res.status(500).json({
+      message: "Server error while fetching student profile",
+    });
+  }
+});
+
 module.exports = router;

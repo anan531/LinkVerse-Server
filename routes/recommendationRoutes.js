@@ -74,14 +74,30 @@ router.get("/", authMiddleware, async (req, res) => {
                     ? 20
                     : 0;
 
-            // Same academic year = 10%
-            const yearScore =
-                currentUser.year &&
-                student.year &&
-                currentUser.year.toLowerCase().trim() ===
-                student.year.toLowerCase().trim()
-                    ? 10
-                    : 0;
+const normalizeYear = (year) => {
+    if (!year) return "";
+
+    const value = year.toString().trim().toLowerCase();
+
+    const yearMap = {
+        "i": "1",
+        "ii": "2",
+        "iii": "3",
+        "iv": "4"
+    };
+
+    return yearMap[value] || value;
+};
+
+const currentYear = normalizeYear(currentUser.year);
+const studentYear = normalizeYear(student.year);
+
+const yearScore =
+    currentYear &&
+    studentYear &&
+    currentYear === studentYear
+        ? 10
+        : 0;
 
             // Final score
             const totalScore =

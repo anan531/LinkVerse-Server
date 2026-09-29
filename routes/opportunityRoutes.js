@@ -60,6 +60,59 @@ router.post("/", authMiddleware, async (req, res) => {
     }
 });
 
+// Edit an opportunity - Admin only
+router.put("/:opportunityId", authMiddleware, async (req, res) => {
+    if (req.user.role !== "admin") {
+        return res.status(403).json({
+            message: "Only admins can edit opportunities"
+        });
+    }
+
+    try {
+        const {
+            title,
+            type,
+            description,
+            organization,
+            location,
+            link,
+            deadline
+        } = req.body;
+
+        const opportunity = await Opportunity.findByIdAndUpdate(
+            req.params.opportunityId,
+            {
+                title,
+                type,
+                description,
+                organization,
+                location,
+                link,
+                deadline
+            },
+            { new: true, runValidators: true }
+        );
+
+        if (!opportunity) {
+            return res.status(404).json({
+                message: "Opportunity not found"
+            });
+        }
+
+        res.json({
+            message: "Opportunity updated successfully",
+            opportunity
+        });
+
+    } catch (error) {
+        console.error(error);
+
+        res.status(500).json({
+            message: "Error updating opportunity"
+        });
+    }
+});
+
 // Delete an opportunity - Admin only
 router.delete("/:opportunityId", authMiddleware, async (req, res) => {
     if (req.user.role !== "admin") {
