@@ -16,15 +16,16 @@ router.get("/", authMiddleware, async (req, res) => {
             });
         }
 
-        // Get all other students
+        // Get students from the same college only
         const students = await User.find({
             role: "student",
+            college: currentUser.college,
             _id: { $ne: req.user.userId }
         });
 
         const recommendations = students.map((student) => {
 
-            // Convert everything to lowercase for comparison
+            // Convert skills to lowercase
             const currentSkills = currentUser.skills.map(skill =>
                 skill.toLowerCase().trim()
             );
@@ -33,6 +34,7 @@ router.get("/", authMiddleware, async (req, res) => {
                 skill.toLowerCase().trim()
             );
 
+            // Convert interests to lowercase
             const currentInterests = currentUser.interests.map(interest =>
                 interest.toLowerCase().trim()
             );
@@ -51,17 +53,19 @@ router.get("/", authMiddleware, async (req, res) => {
                 studentInterests.includes(interest)
             );
 
-            // Calculate individual scores
+            // Skill score = 40%
             const skillScore =
                 currentSkills.length > 0
                     ? (matchingSkills.length / currentSkills.length) * 40
                     : 0;
 
+            // Interest score = 30%
             const interestScore =
                 currentInterests.length > 0
                     ? (matchingInterests.length / currentInterests.length) * 30
                     : 0;
 
+            // Same course = 20%
             const courseScore =
                 currentUser.course &&
                 student.course &&
@@ -70,14 +74,16 @@ router.get("/", authMiddleware, async (req, res) => {
                     ? 20
                     : 0;
 
+            // Same academic year = 10%
             const yearScore =
                 currentUser.year &&
                 student.year &&
-                currentUser.year === student.year
+                currentUser.year.toLowerCase().trim() ===
+                student.year.toLowerCase().trim()
                     ? 10
                     : 0;
 
-            // Final recommendation score
+            // Final score
             const totalScore =
                 skillScore +
                 interestScore +
@@ -100,11 +106,17 @@ router.get("/", authMiddleware, async (req, res) => {
                 matchScore: Math.round(totalScore),
 
                 matchingSkills,
-                matchingInterests
+                matchingInterests,
+
+                sameCourse:
+                    courseScore > 0,
+
+                sameYear:
+                    yearScore > 0
             };
         });
 
-        // Sort highest match first
+        // Highest match first
         recommendations.sort(
             (a, b) => b.matchScore - a.matchScore
         );
