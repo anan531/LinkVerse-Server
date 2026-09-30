@@ -1,5 +1,6 @@
 const express = require("express");
 const Message = require("../models/Message");
+const Connection = require("../models/Connection");
 const authMiddleware = require("../middleware/authMiddleware");
 
 const router = express.Router();
@@ -8,6 +9,28 @@ const router = express.Router();
 router.post("/", authMiddleware, async (req, res) => {
     try {
         const { receiver, message } = req.body;
+
+        // Check whether the users have an accepted connection
+        const connection = await Connection.findOne({
+            $or: [
+                {
+                    sender: req.user.userId,
+                    receiver: receiver,
+                    status: "accepted"
+                },
+                {
+                    sender: receiver,
+                    receiver: req.user.userId,
+                    status: "accepted"
+                }
+            ]
+        });
+
+        if (!connection) {
+            return res.status(403).json({
+                message: "You can only chat with accepted connections"
+            });
+        }
 
         const newMessage = new Message({
             sender: req.user.userId,
@@ -35,6 +58,28 @@ router.post("/", authMiddleware, async (req, res) => {
 router.get("/:userId", authMiddleware, async (req, res) => {
     try {
         const otherUser = req.params.userId;
+
+        // Check whether the users have an accepted connection
+        const connection = await Connection.findOne({
+            $or: [
+                {
+                    sender: req.user.userId,
+                    receiver: otherUser,
+                    status: "accepted"
+                },
+                {
+                    sender: otherUser,
+                    receiver: req.user.userId,
+                    status: "accepted"
+                }
+            ]
+        });
+
+        if (!connection) {
+            return res.status(403).json({
+                message: "You can only access chats with accepted connections"
+            });
+        }
 
         const messages = await Message.find({
             $or: [
