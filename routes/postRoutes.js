@@ -57,6 +57,44 @@ router.post("/", authMiddleware, async (req, res) => {
     }
 });
 
+// Edit a post
+router.put("/:postId", authMiddleware, async (req, res) => {
+    try {
+        const { content } = req.body;
+
+        const post = await Post.findById(req.params.postId);
+
+        if (!post) {
+            return res.status(404).json({
+                message: "Post not found"
+            });
+        }
+
+        // Only the creator can edit the post
+        if (post.createdBy.toString() !== req.user.userId) {
+            return res.status(403).json({
+                message: "Only the creator can edit this post"
+            });
+        }
+
+        post.content = content;
+
+        await post.save();
+
+        res.json({
+            message: "Post updated successfully",
+            post
+        });
+
+    } catch (error) {
+        console.error(error);
+
+        res.status(500).json({
+            message: "Error updating post"
+        });
+    }
+});
+
 
 // Like or unlike a post
 router.put("/:postId/like", authMiddleware, async (req, res) => {
