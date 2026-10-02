@@ -15,7 +15,7 @@ router.get("/", authMiddleware, async (req, res) => {
 
         const students = await User.find(
             { role: "student" },
-            "name email college course year"
+            "name email college department course year"
         );
 
         res.json({

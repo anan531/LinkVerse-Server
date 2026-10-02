@@ -58,6 +58,7 @@ router.put("/me", authMiddleware, async (req, res) => {
     const {
       name,
       college,
+        department,
       course,
       year,
       bio,
@@ -76,6 +77,7 @@ router.put("/me", authMiddleware, async (req, res) => {
 
     if (name !== undefined) user.name = name;
     if (college !== undefined) user.college = college;
+    if (department !== undefined) user.department = department;
     if (course !== undefined) user.course = course;
     if (year !== undefined) user.year = year;
     if (bio !== undefined) user.bio = bio;
@@ -93,6 +95,7 @@ router.put("/me", authMiddleware, async (req, res) => {
         email: user.email,
         role: user.role,
         college: user.college,
+        department: user.department,
         course: user.course,
         year: user.year,
         bio: user.bio,
