@@ -184,4 +184,24 @@ router.put("/:connectionId/reject", authMiddleware, async (req, res) => {
   }
 });
 
+// Get connection requests sent by the current user
+router.get("/sent-requests", authMiddleware, async (req, res) => {
+  try {
+    const requests = await Connection.find({
+      sender: req.user.userId,
+      status: "pending",
+    }).populate("receiver", "name email");
+
+    res.status(200).json({
+      requests,
+    });
+  } catch (error) {
+    console.error("Get sent requests error:", error);
+
+    res.status(500).json({
+      message: "Server error while fetching sent requests",
+    });
+  }
+});
+
 module.exports = router;
