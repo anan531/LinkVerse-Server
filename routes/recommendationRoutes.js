@@ -26,20 +26,20 @@ router.get("/", authMiddleware, async (req, res) => {
         const recommendations = students.map((student) => {
 
             // Convert skills to lowercase
-            const currentSkills = currentUser.skills.map(skill =>
+            const currentSkills = (currentUser.skills || []).map(skill =>
                 skill.toLowerCase().trim()
             );
 
-            const studentSkills = student.skills.map(skill =>
+            const studentSkills = (student.skills || []).map(skill =>
                 skill.toLowerCase().trim()
             );
 
             // Convert interests to lowercase
-            const currentInterests = currentUser.interests.map(interest =>
+            const currentInterests = (currentUser.interests || []).map(interest =>
                 interest.toLowerCase().trim()
             );
 
-            const studentInterests = student.interests.map(interest =>
+            const studentInterests = (student.interests || []).map(interest =>
                 interest.toLowerCase().trim()
             );
 
@@ -53,6 +53,15 @@ router.get("/", authMiddleware, async (req, res) => {
                 studentInterests.includes(interest)
             );
 
+            // Same college = 10%
+            const sameCollege =
+                currentUser.college &&
+                student.college &&
+                currentUser.college.toLowerCase().trim() ===
+                student.college.toLowerCase().trim();
+
+            const collegeScore = sameCollege ? 10 : 0;
+
             // Skill score = 40%
             const skillScore =
                 currentSkills.length > 0
@@ -65,42 +74,45 @@ router.get("/", authMiddleware, async (req, res) => {
                     ? (matchingInterests.length / currentInterests.length) * 30
                     : 0;
 
-            // Same course = 20%
+            // Same course = 10%
             const courseScore =
                 currentUser.course &&
                 student.course &&
                 currentUser.course.toLowerCase().trim() ===
                 student.course.toLowerCase().trim()
-                    ? 20
+                    ? 10
                     : 0;
 
-const normalizeYear = (year) => {
-    if (!year) return "";
+            // Normalize academic year
+            const normalizeYear = (year) => {
+                if (!year) return "";
 
-    const value = year.toString().trim().toLowerCase();
+                const value = year.toString().trim().toLowerCase();
 
-    const yearMap = {
-        "i": "1",
-        "ii": "2",
-        "iii": "3",
-        "iv": "4"
-    };
+                const yearMap = {
+                    "i": "1",
+                    "ii": "2",
+                    "iii": "3",
+                    "iv": "4"
+                };
 
-    return yearMap[value] || value;
-};
+                return yearMap[value] || value;
+            };
 
-const currentYear = normalizeYear(currentUser.year);
-const studentYear = normalizeYear(student.year);
+            const currentYear = normalizeYear(currentUser.year);
+            const studentYear = normalizeYear(student.year);
 
-const yearScore =
-    currentYear &&
-    studentYear &&
-    currentYear === studentYear
-        ? 10
-        : 0;
+            // Same academic year = 10%
+            const yearScore =
+                currentYear &&
+                studentYear &&
+                currentYear === studentYear
+                    ? 10
+                    : 0;
 
             // Final score
             const totalScore =
+                collegeScore +
                 skillScore +
                 interestScore +
                 courseScore +
@@ -124,11 +136,9 @@ const yearScore =
                 matchingSkills,
                 matchingInterests,
 
-                sameCourse:
-                    courseScore > 0,
-
-                sameYear:
-                    yearScore > 0
+                sameCollege,
+                sameCourse: courseScore > 0,
+                sameYear: yearScore > 0
             };
         });
 
