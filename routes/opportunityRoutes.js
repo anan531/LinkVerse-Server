@@ -1,8 +1,22 @@
+
 const express = require("express");
 const Opportunity = require("../models/Opportunity");
 const authMiddleware = require("../middleware/authMiddleware");
 
 const router = express.Router();
+
+// Validate opportunity deadline
+const isPastDeadline = (deadline) => {
+    if (!deadline) {
+        return false;
+    }
+
+    const today = new Date();
+    const todayString =
+        `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+
+    return deadline < todayString;
+};
 
 // Get all opportunities
 router.get("/", async (req, res) => {
@@ -18,14 +32,14 @@ router.get("/", async (req, res) => {
 });
 
 // Create an opportunity
-router.post("/", authMiddleware, async (req, res) => {    
-    
+router.post("/", authMiddleware, async (req, res) => {
+
     if (req.user.role !== "admin") {
-    return res.status(403).json({
-        message: "Only admins can create opportunities"
-    });
-}
-    
+        return res.status(403).json({
+            message: "Only admins can create opportunities"
+        });
+    }
+
     try {
         const {
             title,
@@ -36,6 +50,13 @@ router.post("/", authMiddleware, async (req, res) => {
             link,
             deadline
         } = req.body;
+
+        // Reject past deadlines
+        if (isPastDeadline(deadline)) {
+            return res.status(400).json({
+                message: "Application deadline cannot be in the past."
+            });
+        }
 
         const opportunity = new Opportunity({
             title,
@@ -78,6 +99,13 @@ router.put("/:opportunityId", authMiddleware, async (req, res) => {
             link,
             deadline
         } = req.body;
+
+        // Reject past deadlines
+        if (isPastDeadline(deadline)) {
+            return res.status(400).json({
+                message: "Application deadline cannot be in the past."
+            });
+        }
 
         const opportunity = await Opportunity.findByIdAndUpdate(
             req.params.opportunityId,
@@ -146,3 +174,4 @@ router.delete("/:opportunityId", authMiddleware, async (req, res) => {
 });
 
 module.exports = router;
+
