@@ -1,5 +1,7 @@
+
 const express = require("express");
 const User = require("../models/User");
+const Connection = require("../models/Connection");
 const authMiddleware = require("../middleware/authMiddleware");
 
 const router = express.Router();
@@ -16,11 +18,31 @@ router.get("/", authMiddleware, async (req, res) => {
             });
         }
 
-        // Get students from the same college only
+        // Find all accepted connections in either direction
+        const acceptedConnections = await Connection.find({
+            status: "accepted",
+            $or: [
+                { sender: req.user.userId },
+                { receiver: req.user.userId }
+            ]
+        }).select("sender receiver");
+
+        // Collect IDs of students already connected
+        const connectedStudentIds = acceptedConnections.map((connection) => {
+            return connection.sender.toString() === req.user.userId.toString()
+                ? connection.receiver
+                : connection.sender;
+        });
+
+        // Get students from the same college,
+        // excluding the logged-in user and accepted connections
         const students = await User.find({
             role: "student",
             college: currentUser.college,
-            _id: { $ne: req.user.userId }
+            _id: {
+                $ne: req.user.userId,
+                $nin: connectedStudentIds
+            }
         });
 
         const recommendations = students.map((student) => {

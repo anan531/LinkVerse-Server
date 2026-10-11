@@ -13,10 +13,10 @@ router.get("/", authMiddleware, async (req, res) => {
             });
         }
 
-        const students = await User.find(
-            { role: "student" },
-            "name email college department course year"
-        );
+const students = await User.find(
+    { role: "student" },
+    "name email college department course year skills interests"
+);
 
         res.json({
             message: "Students fetched successfully",
